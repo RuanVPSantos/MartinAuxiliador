@@ -14,21 +14,23 @@ O Martin-Auxiliador é uma ferramenta que gera automaticamente a estrutura de ar
 
 ## Instalação
 
-1. Clone este repositório:
-   ```bash
+1. Instale o pacote:
+```bash
    npm install -g martin-auxiliador
+```
 
 Uso
 
 Para gerar os arquivos a partir de um schema Prisma, execute o seguinte comando:
-bash
-
+```bash
 martin-auxiliador <caminho_para_o_schema.prisma>
+```
 
 Exemplo
-bash
+```bash
 
 martin-auxiliador ./schema.prisma
+```
 
 Estrutura de Diretórios
 
