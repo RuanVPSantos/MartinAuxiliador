@@ -19,7 +19,7 @@ O Martin-Auxiliador é uma ferramenta que gera automaticamente a estrutura de ar
    npm install -g martin-auxiliador
 ```
 
-Uso
+## Uso
 
 Para gerar os arquivos a partir de um schema Prisma, execute o seguinte comando:
 ```bash
@@ -32,7 +32,25 @@ Exemplo
 martin-auxiliador ./schema.prisma
 ```
 
-Estrutura de Diretórios
+## recomendações:
+Atualmente, para executar todos os códigos propostos, são necessárias as instalações das seguintes bibliotecas:
+```bash
+pnpm add bcrypt dotenv jsonwebtoken zod fastify @fastify/cors @prisma/client zod-to-json-schema
+pnpm add -D ts-node typescript prisma @types/bcrypt @types/cors @types/node
+```
+
+seguem os scripts que uso:
+```json
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:generate": "prisma generate"
+  },
+```
+
+## Estrutura de Diretórios
 
 Após a execução do comando, a estrutura de diretórios será criada no seguinte formato:
 ```bash
@@ -47,7 +65,7 @@ src/
           └── router.ts
 ```
 
-Contribuição
+## Contribuição
 
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
 Licença

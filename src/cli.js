@@ -3,6 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 const generateFiles = require('./schema-generator');
+const generateRouter = require('./router-generator');
+const generateIndex = require('./index-generator');
+const generateUtils = require('./utils-generator');
 const process = require('process');
 
 const main = (schemaPath) => {
@@ -17,10 +20,16 @@ const main = (schemaPath) => {
     const models = schemaContent.match(/model (\w+)/g).map(model => model.split(' ')[1]);
 
     const baseDir = path.join(projectDir, 'src', 'v1');
+    const indexDir = path.join(projectDir, 'src');
 
     models.forEach(modelName => generateFiles(modelName, baseDir));
+    generateRouter(models, baseDir);
+    generateIndex(indexDir);
+    generateUtils(baseDir);
+
 
     // Mensagem ao final
+    console.log("Para instalar as libs, digite o seguinte: \npnpm add bcrypt dotenv jsonwebtoken zod fastify @fastify/cors @prisma/client zod-to-json-schema\npnpm add -D ts-node typescript prisma @types/bcrypt @types/cors @types/node")
     console.log("\nConfira o código fonte no GitHub: \nhttps://github.com/RuanVPSantos/MartinAuxiliador");
     console.log("Para preencher os seus arquivos 'interface.ts' e 'schema.ts', por favor, acesse o link:");
     console.log("https://poe.com/Martin-Auxiliador");
