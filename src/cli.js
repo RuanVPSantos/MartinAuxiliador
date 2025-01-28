@@ -8,7 +8,7 @@ const process = require('process');
 const main = (schemaPath) => {
     if (!fs.existsSync(schemaPath)) {
         console.error(`O arquivo de schema não foi encontrado: ${schemaPath}`);
-        process.exit(1)
+        process.exit(1);
     }
 
     const projectDir = path.dirname(schemaPath);
@@ -19,6 +19,11 @@ const main = (schemaPath) => {
     const baseDir = path.join(projectDir, 'src', 'v1');
 
     models.forEach(modelName => generateFiles(modelName, baseDir));
+
+    // Mensagem ao final
+    console.log("\nConfira o código fonte no GitHub: \nhttps://github.com/RuanVPSantos/MartinAuxiliador");
+    console.log("Para preencher os seus arquivos 'interface.ts' e 'schema.ts', por favor, acesse o link:");
+    console.log("https://poe.com/Martin-Auxiliador");
 };
 
 const args = process.argv.slice(2);

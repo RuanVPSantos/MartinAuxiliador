@@ -23,7 +23,7 @@ export default class ${modelName}Model {
         return await this.prisma.${modelName.toLowerCase()}.create({ data });
     }
 
-    async getModels(): Promise<${modelName}Interface[]> {
+    async get${modelName}s(): Promise<${modelName}Interface[]> {
         return await this.prisma.${modelName.toLowerCase()}.findMany();
     }
 
