@@ -10,7 +10,7 @@ const generateFiles = (modelName, baseDir) => {
     // Conteúdo dos arquivos
     const modelContent = `
 import { PrismaClient } from "@prisma/client";
-import { ${modelName}Interface, ${modelName}Input, ${modelName}UpdateInput } from "./interface";
+import { I${modelName}, I${modelName}Input, I${modelName}Update } from "./interface";
 
 export default class ${modelName}Model {
     private prisma: PrismaClient;
@@ -19,30 +19,30 @@ export default class ${modelName}Model {
         this.prisma = prisma;
     }
 
-    async create${modelName}(data: ${modelName}Input): Promise<${modelName}Interface> {
+    async create${modelName}(data: I${modelName}Input): Promise<I${modelName}> {
         return await this.prisma.${modelName.toLowerCase()}.create({ data });
     }
 
-    async get${modelName}s(): Promise<${modelName}Interface[]> {
+    async get${modelName}s(): Promise<I${modelName}[]> {
         return await this.prisma.${modelName.toLowerCase()}.findMany();
     }
 
-    async get${modelName}ById(id: number): Promise<${modelName}Interface> {
+    async get${modelName}ById(id: number): Promise<I${modelName}> {
         return await this.prisma.${modelName.toLowerCase()}.findUniqueOrThrow({ where: { id } });
     }
 
-    async update${modelName}(id: number, data: ${modelName}UpdateInput): Promise<${modelName}Interface> {
+    async update${modelName}(id: number, data: I${modelName}Update): Promise<I${modelName}> {
         return await this.prisma.${modelName.toLowerCase()}.update({ where: { id }, data });
     }
 
-    async delete${modelName}(id: number): Promise<${modelName}Interface> {
+    async delete${modelName}(id: number): Promise<I${modelName}> {
         return await this.prisma.${modelName.toLowerCase()}.delete({ where: { id } });
     }
 }`;
 
     const serviceContent = `
 import ${modelName}Model from './model';
-import { ${modelName}Interface, ${modelName}Input, ${modelName}UpdateInput } from './interface';
+import { I${modelName}, I${modelName}Input, I${modelName}Update } from './interface';
 
 export default class ${modelName}Services {
     private model: ${modelName}Model;
@@ -51,7 +51,7 @@ export default class ${modelName}Services {
         this.model = model;
     }
 
-    async getAll${modelName}s(): Promise<${modelName}Interface[]> {
+    async getAll${modelName}s(): Promise<I${modelName}[]> {
         try {
             return await this.model.get${modelName}s();
         } catch (error) {
@@ -59,7 +59,7 @@ export default class ${modelName}Services {
         }
     }
 
-    async get${modelName}ById(id: number): Promise<${modelName}Interface> {
+    async get${modelName}ById(id: number): Promise<I${modelName}> {
         try {
             return await this.model.get${modelName}ById(id);
         } catch (error) {
@@ -67,7 +67,7 @@ export default class ${modelName}Services {
         }
     }
 
-    async create${modelName}(data: ${modelName}Input): Promise<${modelName}Interface> {
+    async create${modelName}(data: I${modelName}Input): Promise<I${modelName}> {
         try {
             return await this.model.create${modelName}(data);
         } catch (error) {
@@ -75,7 +75,7 @@ export default class ${modelName}Services {
         }
     }
 
-    async update${modelName}(id: number, data: ${modelName}UpdateInput): Promise<${modelName}Interface> {
+    async update${modelName}(id: number, data: I${modelName}Update): Promise<I${modelName}> {
         try {
             return await this.model.update${modelName}(id, data);
         } catch (error) {
@@ -83,7 +83,7 @@ export default class ${modelName}Services {
         }
     }
 
-    async delete${modelName}(id: number): Promise<${modelName}Interface> {
+    async delete${modelName}(id: number): Promise<I${modelName}> {
         try {
             return await this.model.delete${modelName}(id);
         } catch (error) {
@@ -95,28 +95,28 @@ export default class ${modelName}Services {
     const controllerContent = `
 import ${modelName}Services from "./service";
 import ${modelName}Model from "./model";
-import { ${modelName}Interface, ${modelName}Input, ${modelName}UpdateInput } from "./interface";
+import { I${modelName}, I${modelName}Input, I${modelName}Update } from "./interface";
 import { getPrismaPrincipal } from "../utils/prisma.clients";
 
 const modelService = new ${modelName}Services(new ${modelName}Model(getPrismaPrincipal()));
 
 export default class ${modelName}Controller {
-    async getAll${modelName}s(): Promise<${modelName}Interface[]> {
+    async getAll${modelName}s(): Promise<I${modelName}[]> {
         return await modelService.getAll${modelName}s();
     }
-    async get${modelName}ById(id: number): Promise<${modelName}Interface> {
+    async get${modelName}ById(id: number): Promise<I${modelName}> {
         return await modelService.get${modelName}ById(id);
     }
 
-    async create${modelName}(data: ${modelName}Input): Promise<${modelName}Interface> {
+    async create${modelName}(data: I${modelName}Input): Promise<I${modelName}> {
         return await modelService.create${modelName}(data);
     }
 
-    async update${modelName}(id: number, data: ${modelName}UpdateInput): Promise<${modelName}Interface> {
+    async update${modelName}(id: number, data: I${modelName}Update): Promise<I${modelName}> {
         return await modelService.update${modelName}(id, data);
     }
 
-    async delete${modelName}(id: number): Promise<${modelName}Interface> {
+    async delete${modelName}(id: number): Promise<I${modelName}> {
         return await modelService.delete${modelName}(id);
     }
 }`;
@@ -124,16 +124,14 @@ export default class ${modelName}Controller {
     const routerContent = `
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { checkLogin } from '../utils/check.login';
-import { ${modelName}InputSchemaJson, ${modelName}UpdateInputSchemaJson } from './schemas';
-import { ${modelName}Input, ${modelName}UpdateInput } from './interface';
+import { ${modelName}InputSchemaJson, ${modelName}UpdateSchemaJson } from './schemas';
+import { I${modelName}Input, I${modelName}Update } from './interface';
 import ${modelName}Controller from './controller';
 
 const modelController = new ${modelName}Controller();
 
 async function ${modelName}Router(fastify: FastifyInstance) {
-    fastify.get('/all', {
-            preHandler: [checkLogin],
-        },
+    fastify.get('/all',
         async (request: FastifyRequest, reply: FastifyReply) => {
             try {
                 const models = await modelController.getAll${modelName}s();
@@ -149,7 +147,6 @@ async function ${modelName}Router(fastify: FastifyInstance) {
         {
             preHandler: [checkLogin],
             schema: {
-                body: ${modelName}UpdateInputSchemaJson,
                 params: {
                     type: 'object',
                     properties: {
@@ -180,7 +177,7 @@ async function ${modelName}Router(fastify: FastifyInstance) {
         },
         async (request: FastifyRequest, reply: FastifyReply) => {
             try {
-                const data = request.body as ${modelName}Input;
+                const data = request.body as I${modelName}Input;
                 const model = await modelController.create${modelName}(data);
                 return reply.status(200).send(model);
             } catch (error) {
@@ -194,7 +191,7 @@ async function ${modelName}Router(fastify: FastifyInstance) {
         {
             preHandler: [checkLogin],
             schema: {
-                body: ${modelName}UpdateInputSchemaJson,
+                body: ${modelName}UpdateSchemaJson,
                 params: {
                     type: 'object',
                     properties: {
@@ -207,7 +204,7 @@ async function ${modelName}Router(fastify: FastifyInstance) {
         async (request, reply) => {
             try {
                 const { id } = request.params as { id: string };
-                const data = request.body as ${modelName}UpdateInput;
+                const data = request.body as I${modelName}Update;
                 const model = await modelController.update${modelName}(parseInt(id, 10), data);
                 return reply.status(200).send(model);
             } catch (error) {
@@ -221,7 +218,6 @@ async function ${modelName}Router(fastify: FastifyInstance) {
         {
             preHandler: [checkLogin],
             schema: {
-                body: ${modelName}UpdateInputSchemaJson,
                 params: {
                     type: 'object',
                     properties: {
