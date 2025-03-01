@@ -29,10 +29,14 @@ const main = (schemaPath) => {
 
 
     // Mensagem ao final
-    console.log("Para instalar as libs, digite o seguinte: \npnpm add bcrypt dotenv jsonwebtoken zod fastify @fastify/cors @prisma/client zod-to-json-schema\npnpm add -D ts-node typescript prisma @types/bcrypt @types/cors @types/node")
+    console.log("Para instalar as libs, digite o seguinte: \n");
+    console.log("pnpm add @fastify/cors @prisma/client @types/jsonwebtoken @types/nodemailer axios bcryptjs dotenv express fastify fastify-zod jsonwebtoken mysql2 zod zod-to-json-schema");
+    console.log("pnpm add -D @types/bcrypt @types/bcryptjs @types/cors @types/express @types/node prisma ts-node typescript nodemon");
+
     console.log("\nConfira o código fonte no GitHub: \nhttps://github.com/RuanVPSantos/MartinAuxiliador");
-    console.log("Para preencher os seus arquivos 'interface.ts' e 'schema.ts', por favor, acesse o link:");
+    console.log("Para preencher os seus arquivos '*.interface.ts' e '*.schema.ts', por favor, acesse o link:");
     console.log("https://poe.com/Martin-Auxiliador");
+
 };
 
 const args = process.argv.slice(2);
