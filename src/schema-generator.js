@@ -1,16 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
-const generateFiles = (modelName, baseDir) => {
-    const modelDir = path.join(baseDir, modelName.toLowerCase());
-
-    // Cria o diretório para o modelo
-    fs.mkdirSync(modelDir, { recursive: true });
-
-    // Conteúdo dos arquivos
-    const modelContent = `
+// Template functions to generate file content
+const generateModelContent = (modelName) => `
 import { PrismaClient } from "@prisma/client";
-import { I${modelName}, I${modelName}Input, I${modelName}Update } from "./interface";
+import { I${modelName}, I${modelName}Input, I${modelName}Update } from "../interfaces/${modelName}.interface";
 
 export default class ${modelName}Model {
     private prisma: PrismaClient;
@@ -40,14 +34,14 @@ export default class ${modelName}Model {
     }
 }`;
 
-    const serviceContent = `
-import ${modelName}Model from './model';
-import { I${modelName}, I${modelName}Input, I${modelName}Update } from './interface';
+const generateServiceContent = (modelName) => `
+import I${modelName}Repository from './repository';
+import { I${modelName}, I${modelName}Input, I${modelName}Update } from '../../interfaces/${modelName}.interface';
 
 export default class ${modelName}Services {
-    private model: ${modelName}Model;
+    private model: I${modelName}Repository;
 
-    constructor(model: ${modelName}Model) {
+    constructor(model: I${modelName}Repository) {
         this.model = model;
     }
 
@@ -92,10 +86,21 @@ export default class ${modelName}Services {
     }
 }`;
 
-    const controllerContent = `
+const generateRepositoryInterfaceContent = (modelName) => `
+import { I${modelName}, I${modelName}Input, I${modelName}Update } from "../../../interfaces/${modelName}.interface";
+
+export default interface I${modelName}Repository {
+    get${modelName}s(): Promise<I${modelName}[]>;
+    get${modelName}ById(id: number): Promise<I${modelName}>;
+    create${modelName}(data: I${modelName}Input): Promise<I${modelName}>;
+    update${modelName}(id: number, data: I${modelName}Update): Promise<I${modelName}>;
+    delete${modelName}(id: number): Promise<I${modelName}>;
+}`;
+
+const generateControllerContent = (modelName) => `
 import ${modelName}Services from "./service";
-import ${modelName}Model from "./model";
-import { I${modelName}, I${modelName}Input, I${modelName}Update } from "./interface";
+import ${modelName}Model from "../../../models/${modelName}.model";
+import { I${modelName}, I${modelName}Input, I${modelName}Update } from "../../../interfaces/${modelName}.interface";
 import { getPrismaPrincipal } from "../utils/prisma.clients";
 
 const modelService = new ${modelName}Services(new ${modelName}Model(getPrismaPrincipal()));
@@ -121,11 +126,11 @@ export default class ${modelName}Controller {
     }
 }`;
 
-    const routerContent = `
+const generateRouterContent = (modelName) => `
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { checkLogin } from '../utils/check.login';
 import { ${modelName}InputSchemaJson, ${modelName}UpdateSchemaJson } from './schemas';
-import { I${modelName}Input, I${modelName}Update } from './interface';
+import { I${modelName}Input, I${modelName}Update } from '../../../interfaces/${modelName}.interface';
 import ${modelName}Controller from './controller';
 
 const modelController = new ${modelName}Controller();
@@ -242,13 +247,58 @@ async function ${modelName}Router(fastify: FastifyInstance) {
 
 export default ${modelName}Router;`;
 
-    // Cria os arquivos
-    fs.writeFileSync(path.join(modelDir, 'interface.ts'), '');
-    fs.writeFileSync(path.join(modelDir, 'schemas.ts'), '');
-    fs.writeFileSync(path.join(modelDir, 'model.ts'), modelContent);
-    fs.writeFileSync(path.join(modelDir, 'service.ts'), serviceContent);
-    fs.writeFileSync(path.join(modelDir, 'controller.ts'), controllerContent);
-    fs.writeFileSync(path.join(modelDir, 'router.ts'), routerContent);
+// File type mappings
+const fileTemplates = {
+    'model': {
+        path: (modelName, dirs) => path.join(dirs.modelDir, `${modelName.toLowerCase()}.model.ts`),
+        content: generateModelContent
+    },
+    'service': {
+        path: (modelName, dirs) => path.join(dirs.routeDir, 'service.ts'),
+        content: generateServiceContent
+    },
+    'repository': {
+        path: (modelName, dirs) => path.join(dirs.routeDir, 'repository.ts'),
+        content: generateRepositoryInterfaceContent
+    },
+    'controller': {
+        path: (modelName, dirs) => path.join(dirs.routeDir, 'controller.ts'),
+        content: generateControllerContent
+    },
+    'router': {
+        path: (modelName, dirs) => path.join(dirs.routeDir, 'router.ts'),
+        content: generateRouterContent
+    },
+    'interface': {
+        path: (modelName, dirs) => path.join(dirs.interfaceDir, `${modelName.toLowerCase()}.interface.ts`),
+        content: () => ''
+    },
+    'schemas': {
+        path: (modelName, dirs) => path.join(dirs.routeDir, 'schemas.ts'),
+        content: () => ''
+    }
+};
+
+// Main function to generate all files
+const generateFiles = (modelName, baseDir, indexDir) => {
+    // Create directories
+    const dirs = {
+        routeDir: path.join(baseDir, modelName.toLowerCase()),
+        interfaceDir: path.join(indexDir, 'interfaces'),
+        modelDir: path.join(indexDir, 'models')
+    };
+
+    // Ensure directories exist
+    Object.values(dirs).forEach(dir => {
+        fs.mkdirSync(dir, { recursive: true });
+    });
+
+    // Generate each file type
+    Object.values(fileTemplates).forEach(template => {
+        const filePath = template.path(modelName, dirs);
+        const fileContent = template.content(modelName);
+        fs.writeFileSync(filePath, fileContent);
+    });
 };
 
 module.exports = generateFiles;

@@ -11,7 +11,7 @@ const generateIndex = (baseDir) => {
     // Conteúdo do arquivo
     const content = `import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import routes from './v1/routes';
+import routes from './api/v1/routes';
 
 const app = Fastify({ logger: true });
 

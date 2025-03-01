@@ -19,10 +19,10 @@ const main = (schemaPath) => {
     const schemaContent = fs.readFileSync(schemaPath, 'utf-8');
     const models = schemaContent.match(/model (\w+)/g).map(model => model.split(' ')[1]);
 
-    const baseDir = path.join(projectDir, 'src', 'v1');
+    const baseDir = path.join(projectDir, 'src', 'api', 'v1');
     const indexDir = path.join(projectDir, 'src');
 
-    models.forEach(modelName => generateFiles(modelName, baseDir));
+    models.forEach(modelName => generateFiles(modelName, baseDir, indexDir));
     generateRouter(models, baseDir);
     generateIndex(indexDir);
     generateUtils(baseDir);
